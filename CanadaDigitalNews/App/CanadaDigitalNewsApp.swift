@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+// https://newsapi.org/docs/get-started#search
+
 @main
 struct CanadaDigitalNewsApp: App {
     var body: some Scene {

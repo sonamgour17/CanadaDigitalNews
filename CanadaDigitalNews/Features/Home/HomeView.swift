@@ -8,8 +8,28 @@
 import SwiftUI
 
 struct HomeView: View {
+
+    @StateObject var vm = HomeViewModel(apiClient: APIClient.shared)
+
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+
+        VStack {
+            Text("Home")
+
+            if vm.isLoading {
+                ProgressView()
+            }
+
+            List(vm.articles, id: \.title) { article in
+                Text(article.title!)
+                    .font(.title)
+                    .foregroundStyle(.red)
+            }
+
+        }
+        .task {
+            await vm.fetchNews()
+        }
     }
 }
 
