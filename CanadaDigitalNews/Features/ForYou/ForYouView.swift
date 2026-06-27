@@ -8,11 +8,21 @@
 import SwiftUI
 
 struct ForYouView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
+    @EnvironmentObject private var router: AppRouter
 
-#Preview {
-    ForYouView()
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("For You tab")
+                .font(.title)
+
+            Text("Personalized feed will go here.")
+                .foregroundStyle(.secondary)
+
+            Button("Switch to Home tab") {
+                router.switchTab(to: .home)
+            }
+        }
+        .padding()
+        .navigationTitle("For You")
+    }
 }

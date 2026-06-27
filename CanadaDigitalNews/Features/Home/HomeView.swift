@@ -5,34 +5,30 @@
 //  Created by Sonam Gour on 13/05/26.
 //
 
+// Features/Home/HomeView.swift
+
 import SwiftUI
 
 struct HomeView: View {
-
-    @StateObject var vm = HomeViewModel(apiClient: APIClient.shared)
+    @EnvironmentObject private var router: AppRouter
 
     var body: some View {
+        VStack(spacing: 16) {
+            Text("Home tab")
+                .font(.title)
 
-        VStack {
-            Text("Home")
+            Text("Module 3 will put the real news feed here.")
+                .foregroundStyle(.secondary)
 
-            if vm.isLoading {
-                ProgressView()
+            Button("Push fake article detail") {
+                router.push(.articleDetail(articleID: "demo-123"))
             }
 
-            List(vm.articles, id: \.title) { article in
-                Text(article.title!)
-                    .font(.title)
-                    .foregroundStyle(.red)
+            Button("Switch to For You tab") {
+                router.switchTab(to: .forYou)
             }
-
         }
-        .task {
-            await vm.fetchNews()
-        }
+        .padding()
+        .navigationTitle("Top Stories")
     }
-}
-
-#Preview {
-    HomeView()
 }

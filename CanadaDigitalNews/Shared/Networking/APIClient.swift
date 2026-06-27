@@ -23,7 +23,7 @@ final class APIClient: APIClientProtocol {
 
         let request = try RequestBuilder.build(endpoint: endpoint)
 
-        print("➡️ Request URL:", request.url?.absoluteString ?? "nil")
+        print("Request URL:", request.url?.absoluteString ?? "nil")
 
         let (data, response) = try await URLSession.shared.data(for: request)
 
@@ -31,18 +31,18 @@ final class APIClient: APIClientProtocol {
             throw APIError.invalidResponse
         }
 
-        print("📡 Status Code:", httpResponse.statusCode)
+        print("Status Code:", httpResponse.statusCode)
 
         guard (200...299).contains(httpResponse.statusCode) else {
             let body = String(data: data, encoding: .utf8)
-            print("❌ Error Body:", body ?? "nil")
+            print("Error Body:", body ?? "nil")
             throw APIError.invalidStatusCode
         }
 
         do {
             return try JSONDecoder().decode(T.self, from: data)
         } catch {
-            print("❌ Decoding Error:", error)
+            print("Decoding Error:", error)
             throw APIError.decodingFailed
         }
     }
