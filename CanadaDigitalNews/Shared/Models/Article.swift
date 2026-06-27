@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Foundation
 
 struct NewsResponse: Decodable {
     let status: String
@@ -15,28 +14,19 @@ struct NewsResponse: Decodable {
 }
 
 struct Article: Decodable, Identifiable {
-
-    let id = UUID()
-
     let source: Source?
     let author: String?
-    let title: String?
+    let title: String           // required — every article from NewsAPI has a title
     let description: String?
-    let url: String?
+    let url: String             // required — used as the stable identifier
     let urlToImage: String?
-    let publishedAt: String?
+    let publishedAt: Date       // decoded as Date via .iso8601 strategy in APIClient
     let content: String?
 
-    enum CodingKeys: String, CodingKey {
-        case source
-        case author
-        case title
-        case description
-        case url
-        case urlToImage
-        case publishedAt
-        case content
-    }
+    // Identifier derived from the URL, which is stable across fetches.
+    // Generating a UUID would break likes — the same article would have
+    // different IDs on each fetch, so isLiked lookups would always fail.
+    var id: String { url }
 }
 
 struct Source: Decodable {

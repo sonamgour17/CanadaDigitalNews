@@ -23,48 +23,37 @@ enum NewsAPIEndpoint: APIEndpoint {
     }
 
     var path: String {
-        
         switch self {
-            
-        case .topHeadlines(country: _):
+        case .topHeadlines:
             return "/top-headlines"
-
-        case .search(query: _):
+        case .search:
             return "/everything"
         }
     }
-
+    
     var method: HTTPMethod {
-        
         switch self {
-        case .topHeadlines(country: _):
-            return .GET
-        case .search(query: _):
-            return .GET
+        case .topHeadlines:
+            return .get
+        case .search:
+            return .get
         }
     }
 
     var queryItems: [URLQueryItem] {
-        
         switch self {
-        case .topHeadlines(country: let country):
-            
-            return [
-                  URLQueryItem(name: "country", value: country),
-                  URLQueryItem(name: "apiKey", value: APIConstants.apiKey)
-              ]
-            
-        case .search(query: let query):
-            return [
-                URLQueryItem(name: "q", value: query),
-                URLQueryItem(name: "apiKey", value: APIConstants.apiKey),
-            ]
+        case .topHeadlines(let country):
+            return [URLQueryItem(name: "country", value: country)]
+        case .search(let query):
+            return [URLQueryItem(name: "q", value: query)]
         }
     }
 
-    var header: [String : String]? {
+ 
+    var header: [String: String]? {
         [
-            "Content-type" : "application/json"
+            "Accept": "application/json",
+            "X-Api-Key": APIConstants.apiKey
         ]
     }
 

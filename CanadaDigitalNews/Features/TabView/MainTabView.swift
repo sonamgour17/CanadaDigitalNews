@@ -11,11 +11,15 @@ struct MainTabView: View {
 
     @StateObject private var router = AppRouter()
 
+    // Create one APIClient for the app's lifetime and inject it into view models.
+    // @StateObject here owns the HomeViewModel's lifetime — survives view re-renders.
+    @StateObject private var homeViewModel = HomeViewModel(apiClient: APIClient())
+
     var body: some View {
         TabView(selection: $router.selectedTab) {
 
             NavigationStack(path: $router.homePath) {
-                HomeView()
+                HomeView(viewModel: homeViewModel)
                     .navigationDestination(for: AppRoute.self) { route in
                         destination(for: route)
                     }
@@ -47,3 +51,4 @@ struct MainTabView: View {
         }
     }
 }
+
