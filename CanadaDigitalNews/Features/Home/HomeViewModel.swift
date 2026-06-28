@@ -8,11 +8,11 @@
 import Foundation
 import Combine
 
+/// View model for the Home tab — handles initial load, debounced search, and refresh.
 @MainActor
 final class HomeViewModel: ObservableObject {
 
-    // MARK: - View state
-
+    /// What the view should render.
     enum ViewState: Equatable {
         case idle
         case loading
@@ -20,6 +20,9 @@ final class HomeViewModel: ObservableObject {
         case empty
         case error(String)
     }
+
+    // NewsAPI free tier returns reliable results for "us"; "ca" often returns empty.
+    private static let defaultCountry = "us"
 
     // MARK: - Published state
 
@@ -33,10 +36,8 @@ final class HomeViewModel: ObservableObject {
 
     // MARK: - Concurrency state
 
+    // Tracked so a new keystroke can cancel the pending wait.
     private var debounceTask: Task<Void, Never>?
-    private var fetchTask: Task<Void, Never>?
-
-    // MARK: - Init / deinit
 
     init(apiClient: APIClientProtocol) {
         self.apiClient = apiClient
@@ -44,88 +45,75 @@ final class HomeViewModel: ObservableObject {
 
     deinit {
         debounceTask?.cancel()
-        fetchTask?.cancel()
     }
 
     // MARK: - Intent
 
+    /// Called once when the view first appears.
     func loadInitialContent() async {
-        await performFetch(.topHeadlines(country: "us"))
+        await fetchArticles(endpoint: .topHeadlines(country: Self.defaultCountry))
     }
 
+    /// Called on every keystroke. Debounces, then searches or resets.
     func queryChanged(_ newQuery: String) {
         debounceTask?.cancel()
-        fetchTask?.cancel()
 
         let trimmed = newQuery.trimmingCharacters(in: .whitespacesAndNewlines)
 
+        // Empty query → reset to top headlines.
         guard !trimmed.isEmpty else {
             debounceTask = Task { [weak self] in
-                await self?.performFetch(.topHeadlines(country: "us"))
+                guard let self else { return }
+                await self.fetchArticles(endpoint: .topHeadlines(country: Self.defaultCountry))
             }
             return
         }
 
+        // Wait 300ms, then search. Cancelled if user types again.
         debounceTask = Task { [weak self] in
             do {
                 try await Task.sleep(for: .milliseconds(300))
             } catch {
                 return
             }
-            await self?.performFetch(.search(query: trimmed))
+            guard let self else { return }
+            await self.fetchArticles(endpoint: .search(query: trimmed))
         }
     }
 
+    /// Pull-to-refresh.
     func refresh() async {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty {
-            await performFetch(.topHeadlines(country: "us"))
+            await fetchArticles(endpoint: .topHeadlines(country: Self.defaultCountry))
         } else {
-            await performFetch(.search(query: trimmed))
+            await fetchArticles(endpoint: .search(query: trimmed))
         }
     }
 
+    /// Dismisses error alert.
     func dismissError() {
         if case .error = state {
             state = articles.isEmpty ? .empty : .loaded
         }
     }
 
-    // MARK: - Core fetch
+    // MARK: - Fetching
 
-    private func performFetch(_ endpoint: NewsAPIEndpoint) async {
-        fetchTask?.cancel()
-
-        let task = Task { [weak self] in
-            guard let self else { return }
-
-            // Only show "loading" state if we don't already have articles.
-            // Otherwise we'd blank the screen during a refresh.
-            if self.articles.isEmpty {
-                self.state = .loading
-            }
-
-            do {
-                let response: NewsResponse = try await self.apiClient.request(endpoint: endpoint)
-
-                // Critical: cancellation check before writing results.
-                // Prevents stale results from clobbering newer ones.
-                guard !Task.isCancelled else { return }
-
-                self.articles = response.articles
-                self.state = response.articles.isEmpty ? .empty : .loaded
-
-            } catch is CancellationError {
-                return
-            } catch {
-                guard !Task.isCancelled else { return }
-                let message = (error as? LocalizedError)?.errorDescription
-                    ?? "Something went wrong."
-                self.state = .error(message)
-            }
+    /// Fetches articles for the given endpoint and updates view state.
+    private func fetchArticles(endpoint: NewsAPIEndpoint) async {
+        if articles.isEmpty {
+            state = .loading
         }
 
-        fetchTask = task
-        await task.value
+        do {
+            let response: NewsResponse = try await apiClient.request(endpoint: endpoint)
+            articles = response.articles
+            state = articles.isEmpty ? .empty : .loaded
+        } catch {
+            let message = (error as? LocalizedError)?.errorDescription
+                ?? "Something went wrong."
+            state = .error(message)
+        }
     }
 }
