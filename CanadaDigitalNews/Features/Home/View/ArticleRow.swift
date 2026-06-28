@@ -1,13 +1,6 @@
-//
 //  ArticleRow.swift
 //  CanadaDigitalNews
-//
 //  Created by Sonam Gour on 27/06/26.
-//
-
-import SwiftUI
-
-// NewsApp/Features/Home/ArticleRow.swift
 
 import SwiftUI
 

@@ -1,12 +1,8 @@
-//
 //  EmptyStateView.swift
 //  CanadaDigitalNews
-//
 //  Created by Sonam Gour on 28/06/26.
-//
 
 import SwiftUI
-
 
 struct EmptyStateView: View {
     let message: String
