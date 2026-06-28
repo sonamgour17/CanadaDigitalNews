@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum AppTab: Hashable, CaseIterable {
+enum AppTab: Hashable {
     case home
     case forYou
 }
