@@ -25,7 +25,7 @@ struct MainTabView: View {
                     }
             }
             .tabItem {
-                Label("Home", systemImage: "house.fill")
+                Label(AppTab.home.title, systemImage: AppTab.home.systemImage)
             }
             .tag(AppTab.home)
 
@@ -36,7 +36,7 @@ struct MainTabView: View {
                     }
             }
             .tabItem {
-                Label("For You", systemImage: "star.fill")
+                Label(AppTab.forYou.title, systemImage: AppTab.forYou.systemImage)
             }
             .tag(AppTab.forYou)
         }
