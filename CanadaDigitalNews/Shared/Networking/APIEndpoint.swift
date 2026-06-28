@@ -4,6 +4,10 @@
 
 import Foundation
 
+// MARK: - Protocol
+
+/// Describes one API endpoint — its URL, method, query params, and headers.
+/// Any new endpoint just adds a case to a conforming enum.
 protocol APIEndpoint: Sendable {
     var baseURL: String { get }
     var path: String { get }
@@ -13,15 +17,23 @@ protocol APIEndpoint: Sendable {
     var body: [String: Any]? { get }
 }
 
+// MARK: - NewsAPIEndpoint
+/// All NewsAPI endpoints used in the app.
+/// Adding a new endpoint = adding a new case + updating the switches below.
+
 enum NewsAPIEndpoint: APIEndpoint {
     
     case topHeadlines(country: String)
     case search(query: String)
     
+    // MARK: - Base URL
+    
     var baseURL: String {
         return APIConstants.baseURL
     }
 
+    // MARK: - Path
+    
     var path: String {
         switch self {
         case .topHeadlines:
@@ -31,6 +43,8 @@ enum NewsAPIEndpoint: APIEndpoint {
         }
     }
     
+    // MARK: - Method
+    
     var method: HTTPMethod {
         switch self {
         case .topHeadlines:
@@ -39,6 +53,8 @@ enum NewsAPIEndpoint: APIEndpoint {
             return .get
         }
     }
+    
+    // MARK: - Query items
 
     var queryItems: [URLQueryItem] {
         switch self {
@@ -48,7 +64,8 @@ enum NewsAPIEndpoint: APIEndpoint {
             return [URLQueryItem(name: "q", value: query)]
         }
     }
-
+    
+    // MARK: - Headers
  
     var header: [String: String]? {
         [
@@ -56,6 +73,8 @@ enum NewsAPIEndpoint: APIEndpoint {
             "X-Api-Key": APIConstants.apiKey
         ]
     }
+
+    // MARK: - Body
 
     var body: [String : Any]? {
         return nil

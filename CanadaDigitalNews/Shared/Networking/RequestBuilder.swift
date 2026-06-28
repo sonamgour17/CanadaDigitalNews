@@ -6,6 +6,7 @@ import Foundation
 
 struct RequestBuilder {
     
+    /// Builds the URL request for the given API endpoint.
     static func build(endpoint: APIEndpoint) throws -> URLRequest {
 
         guard var components = URLComponents(string: endpoint.baseURL + endpoint.path) else {

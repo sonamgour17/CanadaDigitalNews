@@ -9,18 +9,6 @@
 import Foundation
 import Combine
 
-// MARK: - Protocol
-/// Defines the routing API that view models depend on.
-///
-/// View models accept `any AppRouting` so they can be unit-tested
-/// with a mock router that records calls instead of mutating real
-/// navigation state.
-
-/// Marked `AnyObject` because the router must be a shared reference
-/// (a struct copy would mean each view had its own independent state).
-///
-/// Marked `@MainActor` because navigation state drives SwiftUI views,
-/// and SwiftUI requires all UI updates on the main thread.
 @MainActor
 protocol AppRouting: AnyObject {
     var selectedTab: AppTab { get set }
@@ -78,13 +66,10 @@ final class AppRouter: ObservableObject, AppRouting {
     /// Removes the last route from the specified tab's path.
     /// No-op if the path is already empty.
     func pop(on tab: AppTab? = nil) {
-        
         switch tab ?? selectedTab {
-            
         case .home:
             guard !homePath.isEmpty else { return }
             homePath.removeLast()
-            
         case .forYou:
             guard !forYouPath.isEmpty else { return }
             forYouPath.removeLast()

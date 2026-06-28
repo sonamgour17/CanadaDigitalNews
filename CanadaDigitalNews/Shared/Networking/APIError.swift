@@ -2,37 +2,15 @@
 //  CanadaDigitalNews
 //  Created by Sonam Gour on 13/05/26.
 
-import Foundation
-
-//enum APIError: Error {
-//    case invalidURL
-//    case invalidResponse
-//    case invalidStatusCode
-//    case decodingFailed
-//    
-//    var errorDescription: String {
-//        switch self {
-//            
-//        case .invalidURL:
-//            return "Invalid URL"
-//            
-//        case .invalidResponse:
-//            return "invalidResponse"
-//            
-//        case .invalidStatusCode:
-//            return "invalidStatusCode"
-//            
-//        case .decodingFailed:
-//            return "decodingFailed"
-//
-//        }
-//    }
-//}
-// NewsApp/Shared/Networking/APIError.swift
 
 import Foundation
 
+/// Represents possible errors that can happen while calling an API.
+/// Conforms to `LocalizedError` so each error can provide a user-friendly message.
 enum APIError: LocalizedError {
+    
+    // MARK: - Error Cases
+    
     case invalidURL
     case invalidResponse
     case unauthorized           // 401
@@ -40,9 +18,16 @@ enum APIError: LocalizedError {
     case rateLimited            // 429
     case serverError(Int)       // 500-599
     case unexpectedStatus(Int)  // anything else non-2xx
-    case decodingFailed(Error)  // carries underlying error for debugging
+    
+    /// Keeps the original decoding error for debugging.
+    case decodingFailed(Error)
+    
+    /// Keeps the original URL error, such as no internet, timeout, or lost connection.
     case networkFailure(URLError)
+    
+    // MARK: - LocalizedError
 
+    /// User-friendly error message shown in the UI.
     var errorDescription: String? {
         switch self {
         case .invalidURL:

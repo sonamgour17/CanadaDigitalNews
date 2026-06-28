@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Defines the main tabs available in the app.
 enum AppTab: Hashable {
     case home
     case forYou
